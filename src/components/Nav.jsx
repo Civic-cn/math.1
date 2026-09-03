@@ -9,7 +9,7 @@ export default function Nav({ current, onNavigate }) {
 
   return (
     <div className="hero-topline">
-      <p className="brand-eyebrow">zero to tech</p>
+      <p className="brand-eyebrow">毕业设计</p>
       <nav className="inline-links hero-nav">
         {items.map((it) => (
           <a
