@@ -7,20 +7,20 @@
 
 export const home = {
   heroTitle: "关于项目",
-  heroSubtitle: "项目，创意，灵感，心得，我的作品",
+  heroSubtitle: "类似于一个个人博客项目的起点项目",
   featuredWork: {
-    kicker: "作品",
+    kicker: "a",
     title: "文字实验室",
-    copy: "拼音和情绪，挖掘中文里的细节",
-    linkLabel: "打开作品",
+    copy: "可以挖掘中文里的情绪",
+    linkLabel: "点击打开",
   },
   identity: {
-    motto: "已识乾坤大，尤怜草木青",
+    motto: "雄山峻壑终踏过，须信寒过总是春",
     learning: "零到全栈",
   },
 };
 
 export const textLab = {
-  heroTitle: "文字分析",
-  heroSubtitle: "挖掘中文里的细节",
+  heroTitle: "让我分析分析",
+  heroSubtitle: "看看这句话的情绪如何",
 };
