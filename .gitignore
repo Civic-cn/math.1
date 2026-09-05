@@ -4,3 +4,5 @@ dist/
 out/
 .next/
 backend/.venv
+backend/.__pycahce__
+*.pyc
