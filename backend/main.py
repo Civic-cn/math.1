@@ -2,6 +2,9 @@
 from fastapi import FastAPI
 from pydantic import BaseModel #专门管数据的解析和校验
 from fastapi.middleware.cors import CORSMiddleware #添加中间件
+from pypinyin import lazy_pinyin, Style #用于生成拼音，style声调，lazy_pinyin用于去掉一个中括号
+
+from snownlp import SnowNLP #用于计算感情值
 
 
 app = FastAPI()
@@ -39,11 +42,21 @@ def get_profile():
 
 # 框架把handmake里面的4对细节都封装了， 请求头 请求体 空行啊，状态头啊，状态体啊，空行啊
 
+def score_label(score):
+    if score >= 0.6:
+        return "非常optimistic"
+    elif score <= 0.4:
+        return "有点emo了"
+    else:
+        return "中性"
+# label单独用一个函数来实现，因为逻辑较为简单
 @app.post("/api/analyze")
 def analyze(req: AnalyzeRequest):
+    text = req.text
+    score = round(SnowNLP(text).sentiments, 2)
     return {
         "text": req.text,
-        "score": 0.5,
-        "label": "偏平静",
-        "pinyin": "（模块 6 再说）",
+        "score": score,
+        "label": score_label(score),
+        "pinyin": "".join(lazy_pinyin(text, style=Style.TONE)),
     }
