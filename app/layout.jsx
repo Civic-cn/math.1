@@ -16,7 +16,7 @@ import "../css/lab.css";
 import "../css/responsive.css";
 
 export const metadata = {
-  title: "zero to tech",
+  title: "学不来Math.",
   description: "个人主页 + 文字实验室",
 };
 

@@ -11,10 +11,10 @@ export default function ResultCard({ result, onOpenHistory }) {
 
   const original = result
     ? result.text
-    : "今天的风很轻，适合把脑海里的想法慢慢写下来。";
-  const pinyin = result ? result.pinyin : "jīn tiān de fēng hěn qīng …";
-  const score = result ? result.score : 0.86;
-  const label = result ? result.label : "偏积极";
+    : "Life is a fucxking movie";
+  const pinyin = result ? result.pinyin : "";
+  const score = result ? result.score : 0.99;
+  const label = result ? result.label : "九点九分积极";
 
   useEffect(() => {
     // 卡片自己淡入：.card 默认 opacity:0，这张卡负责把自己显出来

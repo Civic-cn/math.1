@@ -52,12 +52,12 @@ export default function HomeView() {
 
       <article className="panel panel-full identity-panel card">
         <div className="identity-item">
-          <p className="section-kicker">座右铭</p>
+          <p className="section-kicker">名句赏析</p>
           <p className="identity-value identity-quote">{data.identity.motto}</p>
         </div>
         <div className="identity-item">
-          <p className="section-kicker">正在学习</p>
-          <p className="identity-value">{data.identity.learning}</p>
+          <p className="section-kicker">正在开发</p>
+          <p className="identity-value">{data.identity.coding}</p>
         </div>
       </article>
     </AnimatedCardGrid>

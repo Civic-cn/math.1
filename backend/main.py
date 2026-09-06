@@ -1,5 +1,8 @@
 #get 和post方法都写在这里 
 import uuid #随机生成id用
+import re            # 万一大模型乱回复，兜底抠出 JSON 用
+import json          # 解析 Ollama 返回的 JSON格式
+import httpx         # 用来调本地 Ollama 的 HTTP 客户端
 from fastapi import FastAPI,Request, Response
 from pydantic import BaseModel #专门管数据的解析和校验
 from fastapi.middleware.cors import CORSMiddleware #添加中间件
@@ -7,6 +10,9 @@ from pypinyin import lazy_pinyin, Style #外部库 用于生成拼音，style声
 from snownlp import SnowNLP #外部库 用于计算感情值
 from storage import init_db, save_record, get_history #从存储层引入
 from datetime import datetime, timezone #
+
+OLLAMA_URL = "http://localhost:11434/api/generate"#大模型地址
+OLLAMA_MODEL = "qwen2.5:1.5b"   # ← 本地大模型版本
 
 init_db()
 
@@ -50,15 +56,53 @@ class AnalyzeRequest(BaseModel):
     text: str
 #规定analyze的格式要求是str basemodel继承了str的格式给到analyze
 
+def analyze_sentiment(text: str):
+    """用本地 Ollama 判断情感，失败则回退 SnowNLP"""
+    prompt = (
+        "你是中文情感分析助手。请判断下面文本的情感倾向，"
+        "只返回一个JSON：{\"score\": 0到1的小数，越接近1越积极}。\n"
+        f"文本：{text}"
+    )#prompt写回复规则
+    payload = {
+        "model": OLLAMA_MODEL,
+        "prompt": prompt,
+        "stream": False,
+        "format": {
+            "type": "object",
+            "properties": {"score": {"type": "number"}},
+            "required": ["score"],
+        },#发给大模型的内容 模型是谁，prompt是什么，stream=false意思一次性说完
+    }# fomat 是大模型的答题模版
+    try:
+        r = httpx.post(OLLAMA_URL, json=payload, timeout=120)
+        r.raise_for_status()
+        raw = r.json()["response"]
+        #上面的try用于发请求和收请求，还设置超时时间
+        try:
+            score = float(json.loads(raw)["score"])      # 正常：干净 JSON
+        except Exception:
+            m = re.search(r"\{.*\}", raw, re.DOTALL)      # 兜底：从思考包裹里抠 JSON
+            score = float(json.loads(m.group())["score"]) if m else SnowNLP(text).sentiments
+        score = max(0.0, min(1.0, score))
+    except Exception:#最坏的情况，大模型不行，退回snowlp
+        score = SnowNLP(text).sentiments
+    return round(score, 2)
 
 def score_label(score):
-    if score >= 0.6:
-        return "非常optimistic"
-    elif score <= 0.4:
-        return "有点emo了"
+    if score >= 0.8:
+        return "乐观主义者"      
+    elif score >= 0.6:
+        return "至少是positive"     
+    elif score >= 0.4:
+        return "中！！！"        
+    elif score >= 0.2:
+        return "似乎有点糟糕"      
     else:
-        return "中性"
+        return "看起来很糟糕"     
+
 # label单独用一个函数来实现，因为逻辑较为简单
+
+
 
 @app.get("/api/history")
 def history(request: Request, response: Response, limit: int = 10):
@@ -71,7 +115,7 @@ def history(request: Request, response: Response, limit: int = 10):
 def analyze(req: AnalyzeRequest, request: Request, response: Response):
     sid = get_session_id(request, response)
     text = req.text
-    score = round(SnowNLP(text).sentiments, 2)
+    score = analyze_sentiment(text)    # 原来调 SnowNLP，现调本地 Ollama
     result = {
         "text": text,
         "score": score,

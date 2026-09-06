@@ -9,8 +9,8 @@ const API = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 
 export default function InputCard({ onResult }) {
-  const [text, setText] = useState("今天的风很轻，适合把脑海里的想法慢慢写下来。");
-  const [error, setError] = useState("");
+  const [text, setText] = useState("Life is a fucxking movie");
+  const [error, setError] = useState("老弟这是英文，别逗你哥笑了");
 
   async function handleAnalyze() {
     setError("");
