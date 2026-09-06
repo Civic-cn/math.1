@@ -6,3 +6,4 @@ out/
 backend/.venv
 backend/.__pycahce__
 *.pyc
+backend/*.db

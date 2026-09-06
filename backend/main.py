@@ -3,30 +3,11 @@ from fastapi import FastAPI
 from pydantic import BaseModel #专门管数据的解析和校验
 from fastapi.middleware.cors import CORSMiddleware #添加中间件
 from pypinyin import lazy_pinyin, Style #外部库 用于生成拼音，style声调，lazy_pinyin用于去掉一个中括号
-
 from snownlp import SnowNLP #外部库 用于计算感情值
-
-import json
+from storage import init_db, save_record, get_history #从存储层引入
 from datetime import datetime, timezone #
 
-HISTORY_FILE = "history.json"
-
-def load_history():
-    try:
-        with open(HISTORY_FILE, "r", encoding="utf-8") as f: #with open 打开文件
-            return json.load(f)
-    except FileNotFoundError:
-        return []
-
-def save_record(record):
-    records = load_history() #先把所有数据都读出来
-    records.append(record)   #在记录新数据，再一次性再写回去
-    with open(HISTORY_FILE, "w", encoding="utf-8") as f:
-        json.dump(records, f, ensure_ascii=False, indent=2)
-
-#文件存储模式记录数据
-
-
+init_db()
 
 app = FastAPI()
 
@@ -60,6 +41,7 @@ class AnalyzeRequest(BaseModel):
 @app.get("/api/profile")
 def get_profile():
     return profile
+#打开网页就自动请求一个api出现自我介绍文本
 
 # 框架把handmake里面的4对细节都封装了， 请求头 请求体 空行啊，状态头啊，状态体啊，空行啊
 
@@ -87,6 +69,9 @@ def analyze(req: AnalyzeRequest):
 
 @app.get("/api/history")
 def history():
-    records = load_history()   # 读出文件里的全部记录
-    records.reverse()
-    return records[:2]
+    return get_history(10)#这里改返回的条数
+
+# @app 接口层
+# 函数定义 业务层
+# 怎么存，怎么取 存储层 有点复杂，我们选择单独一个文件
+# 等 网页长得足够大，我们在把业务层和接口层分开
