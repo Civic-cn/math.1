@@ -17,40 +17,44 @@ def init_db():
         score REAL,
         label TEXT,
         pinyin TEXT,
-        created_at TEXT
+        created_at TEXT,
+        session_id TEXT
     )
     """)#如果没有表，才建立文字实验室表，不会每次都建
+    cur.execute ("CREATE INDEX IF NOT EXISTS idx_history_session_created " \
+    "ON history(session_id, created_at)")
+    #建立索引 名字叫 idx 
+    # 时间这一列和id是频繁查询的，所以创建索引不亏
     conn.commit()
     conn.close()
 #代码建表
-    cur.execute("CREATE INDEX IF NOT EXISTS idx_history_created ON history(created_at)")
-#建立索引 名字叫 idx 时间这一列是频繁使用的，所以创建索引不亏
 
-
-def save_record(record):
+def save_record(session_id, record):#每次存时都要给出id
     conn = get_conn()
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO history (text, score, label, pinyin, created_at) VALUES (?, ?, ?, ?, ?)",
-        [record["text"], record["score"], record["label"], record["pinyin"], record["created_at"]],
-    )#防注入，全置为问号，怎么防的不用管 create at是标准时间前面main有
+        "INSERT INTO history (session_id, text, score, label, pinyin, created_at)"
+        " VALUES (?, ?, ?, ?, ?, ?)",
+        [session_id, record["text"], record["score"],
+        record["label"], record["pinyin"], record["created_at"]],
+    )
     conn.commit()
     conn.close()
 
 
 
-def get_history(limit):
+def get_history(session_id, limit):
     conn = get_conn()
     cur = conn.cursor()
     rows = cur.execute(
-        "SELECT * FROM history ORDER BY created_at DESC LIMIT ?",
-        [limit],
-    ).fetchall()#fetchall，把查到的所有数据一次性拿成一个list
+        "SELECT * FROM history WHERE session_id = ? ORDER BY created_at DESC LIMIT ?",
+        [session_id, limit],
+    ).fetchall()
     conn.close()
 
     records = []
-    for row in rows: #for循环在这里是把取出来的值转换为对用户友好的格式
-        records.append(dict(row))
+    for row in rows:
+        records.append(dict(row)) 
     return records
 
 #limit在main写定了，不要写数字在存储层， 

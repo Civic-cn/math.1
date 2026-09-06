@@ -1,5 +1,6 @@
 #get 和post方法都写在这里 
-from fastapi import FastAPI
+import uuid #随机生成id用
+from fastapi import FastAPI,Request, Response
 from pydantic import BaseModel #专门管数据的解析和校验
 from fastapi.middleware.cors import CORSMiddleware #添加中间件
 from pypinyin import lazy_pinyin, Style #外部库 用于生成拼音，style声调，lazy_pinyin用于去掉一个中括号
@@ -14,11 +15,22 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
-    allow_credentials=True,
     allow_methods=["GET", "POST"],#允许哪些方法
     allow_headers=["*"],
-) #后端认可前端3000这个端口，解决跨源问题
+    allow_credentials=True,          # ← 新增：允许跨源请求带上 cookie
+) #中间件，解决跨源问题
 
+def get_session_id(request: Request, response: Response) -> str:
+    sid = request.cookies.get("session_id")      # 先看有没有纸条
+    if not sid:                                  # 第一次来，没有——发一张
+        sid = uuid.uuid4().hex                    # 一串随机、不重复的 id
+        response.set_cookie(   #把id写进set-cookie
+            "session_id", sid,
+            httponly=True, samesite="lax",
+            max_age=60 * 60 * 24 * 30,            # 记 30 天
+        )
+    return sid
+# 
 
 profile = {
     "heroTitle": "关于我来自后端",
@@ -38,12 +50,6 @@ class AnalyzeRequest(BaseModel):
     text: str
 #规定analyze的格式要求是str basemodel继承了str的格式给到analyze
 
-@app.get("/api/profile")
-def get_profile():
-    return profile
-#打开网页就自动请求一个api出现自我介绍文本
-
-# 框架把handmake里面的4对细节都封装了， 请求头 请求体 空行啊，状态头啊，状态体啊，空行啊
 
 def score_label(score):
     if score >= 0.6:
@@ -53,8 +59,17 @@ def score_label(score):
     else:
         return "中性"
 # label单独用一个函数来实现，因为逻辑较为简单
+
+@app.get("/api/history")
+def history(request: Request, response: Response, limit: int = 10):
+    sid = get_session_id(request, response)
+    return get_history(sid, limit)    # 只回这个会话自己的
+#打开网页就自动请求一个api出现自我介绍文本
+# 框架把handmake里面的4对细节都封装了， 请求头 请求体 空行啊，状态头啊，状态体啊，空行啊
+
 @app.post("/api/analyze")
-def analyze(req: AnalyzeRequest):
+def analyze(req: AnalyzeRequest, request: Request, response: Response):
+    sid = get_session_id(request, response)
     text = req.text
     score = round(SnowNLP(text).sentiments, 2)
     result = {
@@ -62,14 +77,10 @@ def analyze(req: AnalyzeRequest):
         "score": score,
         "label": score_label(score),
         "pinyin": " ".join(lazy_pinyin(text, style=Style.TONE)),
-        "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),  # ← 新增字段，用世界标准时区代替时间
+        "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
-    save_record(result)         # ← 存档到文件
-    return result
-
-@app.get("/api/history")
-def history():
-    return get_history(10)#这里改返回的条数
+    save_record(sid, result)          # 存的时候盖上这个会话的记号
+    return result                     # ← 返回体一个字没变，session_id 只走 cookie
 
 # @app 接口层
 # 函数定义 业务层
