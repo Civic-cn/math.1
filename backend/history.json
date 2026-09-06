@@ -1,0 +1,23 @@
+[
+  {
+    "text": "@app.get(\"/api/history\")\ndef history():\n    records = load_history()   # 读出文件里的全部记录\n    return records\n\n",
+    "score": 0.2,
+    "label": "有点emo了",
+    "pinyin": "@app.get(\"/api/history\")\ndef history():\n    records = load_history()   #  dú chū wén jiàn lǐ de quán bù jì lù \n    return records\n\n",
+    "created_at": "2026-09-06T11:50:48+00:00"
+  },
+  {
+    "text": " 读出文件里的全部记录\n    return records\n\n",
+    "score": 0.58,
+    "label": "中性",
+    "pinyin": "  dú chū wén jiàn lǐ de quán bù jì lù \n    return records\n\n",
+    "created_at": "2026-09-06T11:51:37+00:00"
+  },
+  {
+    "text": " 读出文件里的全部记录\n\n",
+    "score": 0.63,
+    "label": "非常optimistic",
+    "pinyin": "  dú chū wén jiàn lǐ de quán bù jì lù \n\n",
+    "created_at": "2026-09-06T11:51:41+00:00"
+  }
+]
