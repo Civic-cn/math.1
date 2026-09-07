@@ -60,7 +60,7 @@ def analyze_sentiment(text: str):
     """用本地 Ollama 判断情感，失败则回退 SnowNLP"""
     prompt = (
         "你是中文情感分析助手。请判断下面文本的情感倾向，"
-        "只返回一个JSON：{\"score\": 0到1的小数，越接近1越积极}。\n"
+        "只返回一个JSON：{\"score\": 0到1的小数，越接近1越积极，score=0~0.4时label填"消极"，0.4~0.7时label填"中性"，>0.7时label填"积极"}。\n"
         f"文本：{text}"
     )#prompt写回复规则
     payload = {
