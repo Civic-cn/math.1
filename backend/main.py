@@ -57,36 +57,12 @@ class AnalyzeRequest(BaseModel):
 #规定analyze的格式要求是str basemodel继承了str的格式给到analyze
 
 def analyze_sentiment(text: str):
-    """用本地 Ollama 判断情感，失败则回退 SnowNLP"""
-    prompt = (
-        "你是中文情感分析助手。请判断下面文本的情感倾向，"
-        "只返回一个JSON：{\"score\": 0到1的小数，越接近1越积极，中性评价给分0.5左右，积极向上的词给分高于0.5，负面的词给出低于0.5}。\n"
-        f"文本：{text}"
-    )#prompt写回复规则
-    payload = {
-        "model": OLLAMA_MODEL,
-        "prompt": prompt,
-        "stream": False,
-        "format": {
-            "type": "object",
-            "properties": {"score": {"type": "number"}},
-            "required": ["score"],
-        },#发给大模型的内容 模型是谁，prompt是什么，stream=false意思一次性说完
-    }# fomat 是大模型的答题模版
+    """用 SnowNLP 计算情感分数"""
     try:
-        r = httpx.post(OLLAMA_URL, json=payload, timeout=120)
-        r.raise_for_status()
-        raw = r.json()["response"]
-        #上面的try用于发请求和收请求，还设置超时时间
-        try:
-            score = float(json.loads(raw)["score"])      # 正常：干净 JSON
-        except Exception:
-            m = re.search(r"\{.*\}", raw, re.DOTALL)      # 兜底：从思考包裹里抠 JSON
-            score = float(json.loads(m.group())["score"]) if m else SnowNLP(text).sentiments
-        score = max(0.0, min(1.0, score))
-    except Exception:#最坏的情况，大模型不行，退回snowlp
         score = SnowNLP(text).sentiments
-    return round(score, 2)
+        return round(float(score), 2)
+    except Exception:
+        return 0.5  # 出错给中等分
 
 def score_label(score):
     if score >= 0.8:
@@ -115,7 +91,7 @@ def history(request: Request, response: Response, limit: int = 10):
 def analyze(req: AnalyzeRequest, request: Request, response: Response):
     sid = get_session_id(request, response)
     text = req.text
-    score = analyze_sentiment(text)    # 原来调 SnowNLP，现调本地 Ollama
+    score = round(SnowNLP(req.text).sentiments, 2)    # 原来调 SnowNLP，现调本地 Ollama，不好用，再换回
     result = {
         "text": text,
         "score": score,
