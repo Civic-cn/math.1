@@ -1,4 +1,5 @@
 body {
+  padding-top: 56px;  /* ← 加上这行，给导航栏留位置 */
   font-family: var(--font);
   line-height: 1.5;
   color: var(--text-main);

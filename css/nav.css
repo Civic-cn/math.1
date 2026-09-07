@@ -1,23 +1,99 @@
-.inline-links {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 18px;
+/* 导航栏主体 */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 56px;
+  background: #fcfcfc;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.hero-nav {
-  justify-content: flex-end;
+/* 品牌名 */
+.nav-brand {
+  font-size: 18px;
+  font-weight: 700;
+  color: #818cf8;
+  letter-spacing: 1px;
 }
 
+/* 菜单靠右 */
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* 菜单链接 一般状态 */
 .nav-link {
-  color: rgba(29, 29, 31, 0.54);
+  display: block;
+  padding: 8px 16px;
+  color: rgba(0, 0, 0, 0.6);
   font-size: 15px;
-  line-height: 1.33;
-  letter-spacing: -0.24px;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: all 0.2s;
   cursor: pointer;
-  transition: color 0.2s;
 }
 
-.nav-link.active {
-  color: var(--text-main);
+.nav-link:hover {/* 菜单链接-移动至悬浮 */        
+  color: #0c0c0c;
+  background: rgba(109, 91, 180, 0.08);
+}
+
+.nav-link.active {/* 菜单链接-选中时 */ 
+  color: #818cf8;
+  background: rgba(129, 140, 248, 0.15);
   font-weight: 500;
+}
+
+/* 下拉菜单 */
+.nav-dropdown {
+  position: relative;
+}
+/* ========== 下拉菜单弹出层外壳========== */
+.nav-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 6px 0;
+  min-width: 150px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  list-style: none;
+  z-index: 100;
+}
+
+.nav-dropdown-link {/* 下拉菜单弹出的内容 */  
+  display: block;
+  padding: 10px 20px;
+  color: rgba(0, 0, 0, 0.8);
+  font-size: 14px;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.2s;
+}
+/* 下拉菜单里的选项 */  
+.nav-dropdown-link:hover,
+.nav-dropdown-link.active {
+  background: #818cf8;
+  color: #fff;
+}
+
+/* 页面内容不被导航栏遮挡 */
+main,
+.page-content,
+.hero-section {
+  padding-top: 56px;
 }

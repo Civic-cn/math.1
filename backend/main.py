@@ -12,7 +12,7 @@ from storage import init_db, save_record, get_history #从存储层引入
 from datetime import datetime, timezone #
 
 OLLAMA_URL = "http://localhost:11434/api/generate"#大模型地址
-OLLAMA_MODEL = "qwen2.5:1.5b"   # ← 本地大模型版本
+OLLAMA_MODEL = "qwen2.5:1.5b"   # ← 本地大模型版本 deepseek-r1:7b qwen2.5:1.5b
 
 init_db()
 
@@ -106,3 +106,24 @@ def analyze(req: AnalyzeRequest, request: Request, response: Response):
 # 函数定义 业务层
 # 怎么存，怎么取 存储层 有点复杂，我们选择单独一个文件
 # 等 网页长得足够大，我们在把业务层和接口层分开
+
+@app.post("/api/keywords")
+def extract_keywords(req: AnalyzeRequest):
+    """用本地 Ollama 模型提取关键词"""
+    prompt = (
+        f"从以下文本中提取3-5个核心关键词，用顿号分隔，只返回关键词，不要解释。\n"
+        f"文本：{req.text}"
+    )
+    payload = {
+        "model": OLLAMA_MODEL,
+        "prompt": prompt,
+        "stream": False,
+        "options": {"temperature": 0.1}
+    }
+    try:
+        r = httpx.post(OLLAMA_URL, json=payload, timeout=60)
+        r.raise_for_status()
+        keywords = r.json()["response"].strip()
+        return {"text": req.text, "keywords": keywords}
+    except Exception:
+        return {"text": req.text, "keywords": "提取失败，请稍后重试"}

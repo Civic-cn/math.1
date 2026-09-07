@@ -1,39 +1,72 @@
 "use client";
 
-// 顶部这一条（品牌 + 导航）——和 4.4 长得一模一样，只是"跳页面"换了写法：
-// 4.4 我们手搓 useRoute()，靠 onClick 调 navigate()、自己监听 popstate；
-// Next.js 替我们写好了那一摊，这里只用：
-//   - <Link href="/..."> 表示"点这里跳到那一页"
-//   - usePathname() 告诉我们"现在地址栏长什么样"（用来高亮当前页）
-// 因为用到了 usePathname、要在浏览器里跑，所以顶上标了 "use client"。
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export default function Nav() {
   const pathname = usePathname();
-  const items = [
-    { href: "/",         label: "个人主页" },
-    { href: "/text-lab", label: "文字实验室" },
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const topItems = [
+    { name: "首页", path: "/" },
   ];
 
+  const dropdownItems = [
+    { name: "文字实验室", path: "/text-lab" },
+    { name: "关键词提取", path: "/keywords" },
+  ];
+
+  const isActive = (path) => {
+    if (path === "/") return pathname === "/";
+    return pathname.startsWith(path);
+  };
+
   return (
-    <div className="hero-topline">
-      <p className="brand-eyebrow">学不来Math.</p>
-      <nav className="inline-links hero-nav">
-        {items.map((it) => {
-          const active =
-            it.href === "/" ? pathname === "/" : pathname.startsWith(it.href);
-          return (
+    <nav className="nav">
+      <div className="nav-brand">学不来Math.</div>
+      <ul className="nav-menu">
+        {topItems.map((item) => (
+          <li key={item.path}>
             <Link
-              key={it.href}
-              href={it.href}
-              className={"nav-link" + (active ? " active" : "")}
+              href={item.path}
+              className={isActive(item.path) ? "nav-link active" : "nav-link"}
             >
-              {it.label}
+              {item.name}
             </Link>
-          );
-        })}
-      </nav>
-    </div>
+          </li>
+        ))}
+
+        {/* 文字下拉菜单 */}
+        <li className="nav-dropdown">
+          <span
+            className={`nav-link nav-dropdown-toggle ${
+              isActive("/text-lab") || isActive("/keywords") ? "active" : ""
+            }`}
+            onClick={() => setShowDropdown(!showDropdown)}
+            style={{ cursor: "pointer" }}
+          >
+            文字 ▾
+          </span>
+          {showDropdown && (
+            <ul className="nav-dropdown-menu">
+              {dropdownItems.map((item) => (
+                <li key={item.path}>
+                  <Link
+                    href={item.path}
+                    className={`nav-dropdown-link ${
+                      isActive(item.path) ? "active" : ""
+                    }`}
+                    onClick={() => setShowDropdown(false)}
+                  >
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </li>
+      </ul>
+    </nav>
   );
 }
