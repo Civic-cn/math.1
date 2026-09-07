@@ -20,7 +20,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000", "http://101.96.206.125", "https://101.96.206.125"],
     allow_methods=["GET", "POST"],#允许哪些方法
     allow_headers=["*"],
     allow_credentials=True,          # ← 新增：允许跨源请求带上 cookie
