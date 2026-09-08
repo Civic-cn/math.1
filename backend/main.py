@@ -10,6 +10,7 @@ from pypinyin import lazy_pinyin, Style #外部库 用于生成拼音，style声
 from snownlp import SnowNLP #外部库 用于计算感情值
 from storage import init_db, save_record, get_history #从存储层引入
 from datetime import datetime, timezone #
+import jieba.analyse #用外部库jieba来实现关键字提取
 
 OLLAMA_URL = "http://localhost:11434/api/generate"#大模型地址
 OLLAMA_MODEL = "qwen2.5:1.5b"   # ← 本地大模型版本 deepseek-r1:7b qwen2.5:1.5b
@@ -38,9 +39,9 @@ def get_session_id(request: Request, response: Response) -> str:
     return sid
 # 
 
-profile = {
-    "heroTitle": "关于我来自后端",
-    "heroSubtitle": "项目，创意，灵感，心得，我的作品",
+profile = {#一打开主页面就请求的自建api
+    "heroTitle": "关于我的作品",
+    "heroSubtitle": "完全的灵感,还在完善更多功能中......",
     "featuredWork": {
         "kicker": "作品",
         "title": "文字实验室",
@@ -48,10 +49,15 @@ profile = {
         "linkLabel": "打开作品",
     },
     "identity": {
-        "motto": "已识乾坤大，尤怜草木青",
-        "learning": "零到全栈",
+        "motto": "此情可待成追忆，只是当时已惘然",
+        "coding": "毕业作品",
     },
 }
+
+@app.get("/api/profile")#调用
+def get_profile():
+    return profile
+
 class AnalyzeRequest(BaseModel):
     text: str
 #规定analyze的格式要求是str basemodel继承了str的格式给到analyze
@@ -109,21 +115,6 @@ def analyze(req: AnalyzeRequest, request: Request, response: Response):
 
 @app.post("/api/keywords")
 def extract_keywords(req: AnalyzeRequest):
-    """用本地 Ollama 模型提取关键词"""
-    prompt = (
-        f"从以下文本中提取3-5个核心关键词，用顿号分隔，只返回关键词，不要解释。\n"
-        f"文本：{req.text}"
-    )
-    payload = {
-        "model": OLLAMA_MODEL,
-        "prompt": prompt,
-        "stream": False,
-        "options": {"temperature": 0.1}
-    }
-    try:
-        r = httpx.post(OLLAMA_URL, json=payload, timeout=60)
-        r.raise_for_status()
-        keywords = r.json()["response"].strip()
-        return {"text": req.text, "keywords": keywords}
-    except Exception:
-        return {"text": req.text, "keywords": "提取失败，请稍后重试"}
+    # TextRank 算法提取 top5 关键词
+    words = jieba.analyse.textrank(req.text, topK=5)
+    return {"text": req.text, "keywords": "、".join(words)}
