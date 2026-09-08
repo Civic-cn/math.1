@@ -8,14 +8,18 @@ export default function Nav() {
   const pathname = usePathname();
   const [showDropdown, setShowDropdown] = useState(false);
 
+
+
   const topItems = [
     { name: "首页", path: "/" },
+    { name: "旅行日志", path: "/trips" },   // ← 加这行
   ];
 
   const dropdownItems = [
     { name: "文字实验室", path: "/text-lab" },
     { name: "关键词提取", path: "/keywords" },
   ];
+
 
   const isActive = (path) => {
     if (path === "/") return pathname === "/";

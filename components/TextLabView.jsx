@@ -4,7 +4,6 @@
 // 历史放在弹窗里（而不是再加一张卡），点结果卡右上角的按钮才打开——
 // 也是打开的那一刻才去请求 /api/history，没必要每次进页面都拉一遍。
 import { useState } from "react";
-import Nav from "./Nav.jsx";
 import PageHeading from "./PageHeading.jsx";
 import AnimatedCardGrid from "./AnimatedCardGrid.jsx";
 import InputCard from "./InputCard.jsx";
@@ -32,7 +31,7 @@ export default function TextLabView() {
   return (
     <AnimatedCardGrid className="dashboard-grid">
       <article className="hero-stage panel-full">
-        <Nav />
+        
         <PageHeading title={textLab.heroTitle} subtitle={textLab.heroSubtitle} />
       </article>
 

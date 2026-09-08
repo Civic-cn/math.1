@@ -12,6 +12,12 @@ export const home = {
     copy: "拼音和情绪，挖掘中文里的细节",
     linkLabel: "点击使用",
   },
+  featuredWork2: {                    
+    kicker: "功能",
+    title: "旅行日志",
+    copy: "记录足迹，在地图上点亮去过的地方",
+    linkLabel: "点击进入",
+  },
   identity: {
     motto: "此情可待成追忆，只是当时已惘然",
     coding: "零到全栈",

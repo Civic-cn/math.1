@@ -7,7 +7,6 @@
 // 注意：后端地址暂时写死在下面，跟着课件，这一节最后会把它收进 .env.local。
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Nav from "./Nav.jsx";
 import PageHeading from "./PageHeading.jsx";
 import AnimatedCardGrid from "./AnimatedCardGrid.jsx";
 import { home } from "../data/site.js";
@@ -36,16 +35,25 @@ export default function HomeView() {
   return (
     <AnimatedCardGrid className="dashboard-grid">
       <article className="hero-stage panel-full">
-        <Nav />
         <PageHeading title={data.heroTitle} subtitle={data.heroSubtitle} />
       </article>
-
+      {/* 文字实验室*/}
       <article className="panel panel-full featured-work-panel card">
         <p className="section-kicker">{data.featuredWork.kicker}</p>
         <p className="featured-title">{data.featuredWork.title}</p>
         <p className="featured-copy">{data.featuredWork.copy}</p>
         <Link className="featured-link" href="/text-lab">
           <span className="featured-link-label">{data.featuredWork.linkLabel}</span>
+          <span className="arrow">›</span>
+        </Link>
+      </article>
+    {/*旅行日志*/}
+        <article className="panel panel-full featured-work-panel card">
+        <p className="section-kicker">{data.featuredWork2.kicker}</p>
+        <p className="featured-title">{data.featuredWork2.title}</p>
+        <p className="featured-copy">{data.featuredWork2.copy}</p>
+        <Link className="featured-link" href="/trips">
+          <span className="featured-link-label">{data.featuredWork2.linkLabel}</span>
           <span className="arrow">›</span>
         </Link>
       </article>

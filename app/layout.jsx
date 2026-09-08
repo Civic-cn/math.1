@@ -12,6 +12,8 @@ import "../css/nav.css";
 import "../css/cards.css";
 import "../css/lab.css";
 import "../css/responsive.css";
+import Nav from "../components/Nav.jsx";
+
 
 export const metadata = {
   title: "学不来Math.",
@@ -22,6 +24,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="zh-CN">
       <body>
+        <Nav />
         <div className="app-shell">
           <div className="page-shell">
             <main className="page-content">{children}</main>

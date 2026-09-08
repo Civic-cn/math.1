@@ -30,10 +30,16 @@ profile = {#一打开主页面就请求的自建api
     "heroTitle": "关于我的作品",
     "heroSubtitle": "完全的灵感,还在完善更多功能中......",
     "featuredWork": {
-        "kicker": "作品",
+        "kicker": "功能A",
         "title": "文字实验室",
         "copy": "拼音和情绪，挖掘中文里的细节",
         "linkLabel": "打开作品",
+    },
+    "featuredWork2": {
+        "kicker": "功能B",
+        "title": "旅行日志",
+        "copy": "记录足迹，在地图上点亮去过的地方",
+        "linkLabel": "点击进入",
     },
     "identity": {
         "motto": "此情可待成追忆，只是当时已惘然",

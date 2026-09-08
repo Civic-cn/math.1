@@ -1,7 +1,6 @@
         "use client";
 
         import { useState } from "react";
-        import Nav from "./Nav.jsx";
         import PageHeading from "./PageHeading.jsx";
         import AnimatedCardGrid from "./AnimatedCardGrid.jsx";
 
@@ -38,7 +37,6 @@
 
         return (
             <>
-            <Nav />
             <AnimatedCardGrid>
                 <PageHeading
                 title="关键词"
