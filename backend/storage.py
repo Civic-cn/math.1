@@ -58,3 +58,9 @@ def get_history(session_id, limit):
     return records
 
 #limit在main写定了，不要写数字在存储层， 
+
+
+## 功能文字分析的数据库
+
+
+## 功能旅行日志的数据库
